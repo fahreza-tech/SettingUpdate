@@ -1536,81 +1536,78 @@ async function kirimAI() {
   </div>
 </div>
 <!-- ============================================================
-     PATCH v2 — Tempel TEPAT SEBELUM </body> di index.html
-     Tidak perlu edit apapun yang lain! Auto-override key lama.
+     PATCH: Tambahkan ini TEPAT SEBELUM tag </body> di index.html
      ============================================================ -->
-<script>
-// ── Intercept semua fetch ke Gemini, inject key dari localStorage ──
-(function() {
-  var _fetch = window.fetch;
-  window.fetch = function(url, opts) {
-    if (typeof url === 'string' && url.indexOf('generativelanguage.googleapis.com') !== -1) {
-      var lsKey = localStorage.getItem('gemini_api_key');
-      if (lsKey) {
-        // Ganti key lama di URL dengan key dari localStorage
-        url = url.replace(/key=[^&]+/, 'key=' + lsKey);
-      }
-    }
-    return _fetch.call(this, url, opts);
-  };
-})();
 
-// ── Fungsi simpan/hapus/lihat key ─────────────────────────────
+<!-- GEMINI KEY UI — tambah di paling bawah section Pengaturan -->
+<script>
+// ── PATCH: Gemini Key dari localStorage ──────────────────────
+// Ganti baris: const GEMINIKEY = 'AIza...'
+// Dengan fungsi ini:
+function getGeminiKey() {
+  return localStorage.getItem('gemini_api_key') || '';
+}
+
 function saveGeminiKey() {
-  var inp = document.getElementById('geminiKeyInput');
-  var key = (inp.value || '').trim();
-  var status = document.getElementById('geminiKeyStatus');
-  if (!key) { status.style.color='#f06060'; status.textContent='Key tidak boleh kosong!'; return; }
-  if (key.indexOf('AIza') !== 0) { status.style.color='#f0b860'; status.textContent='Format salah, harus diawali AIza...'; return; }
+  const inp = document.getElementById('geminiKeyInput');
+  const key = (inp.value || '').trim();
+  const status = document.getElementById('geminiKeyStatus');
+  if (!key) { status.style.color='#f06060'; status.textContent='⚠️ Key tidak boleh kosong!'; return; }
+  if (!key.startsWith('AIza')) { status.style.color='#f0b860'; status.textContent='⚠️ Format salah (harus diawali AIza...)'; return; }
   localStorage.setItem('gemini_api_key', key);
   inp.value = '';
-  inp.placeholder = 'Tersimpan: ' + key.slice(0,10) + '...';
+  inp.placeholder = '✅ Tersimpan — ' + key.slice(0,10) + '...';
   status.style.color = '#5ecb8b';
-  status.textContent = 'API Key berhasil disimpan! AI Agent siap.';
+  status.textContent = '✅ API Key berhasil disimpan! AI Agent siap.';
 }
+
 function deleteGeminiKey() {
   localStorage.removeItem('gemini_api_key');
-  var inp = document.getElementById('geminiKeyInput');
-  if (inp) inp.placeholder = 'AIzaSy...';
-  var s = document.getElementById('geminiKeyStatus');
-  if (s) { s.style.color='#f06060'; s.textContent='Key dihapus.'; }
+  document.getElementById('geminiKeyInput').placeholder = 'AIzaSy...';
+  const s = document.getElementById('geminiKeyStatus');
+  s.style.color='#f06060'; s.textContent='🗑 Key dihapus.';
 }
+
 function toggleShowKey() {
-  var i = document.getElementById('geminiKeyInput');
-  if (i) i.type = i.type === 'password' ? 'text' : 'password';
+  const i = document.getElementById('geminiKeyInput');
+  i.type = i.type === 'password' ? 'text' : 'password';
 }
 
-// ── Inject UI card ke tab Pengaturan ──────────────────────────
+// Inject UI card ke tab Pengaturan saat halaman load
 window.addEventListener('DOMContentLoaded', function() {
-  var tabP = document.getElementById('tab-pengaturan');
-  if (!tabP) return;
-  var card = document.createElement('div');
-  card.className = 'card';
-  card.style.cssText = 'border-color:rgba(79,142,247,.4);margin-top:16px';
-  card.innerHTML =
-    '<div class="card-title" style="color:#4f8ef7">Gemini AI — API Key</div>' +
-    '<div style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.25);border-radius:8px;padding:10px 14px;font-size:.82rem;margin-bottom:14px;color:#7aadff">' +
-    'Key disimpan di browser kamu saja, tidak masuk ke GitHub. Aman!<br>' +
-    'Buat key gratis di <a href="https://aistudio.google.com" target="_blank" style="color:#4f8ef7">aistudio.google.com</a> lalu Get API Key' +
-    '</div>' +
-    '<div class="form-group">' +
-    '<label>Masukkan API Key Kamu</label>' +
-    '<input type="password" id="geminiKeyInput" placeholder="AIzaSy..." style="font-family:monospace" ' +
-    'onkeydown="if(event.key==='Enter')saveGeminiKey()" ' +
-    'oninput="document.getElementById('geminiKeyStatus').textContent=''">' +
-    '</div>' +
-    '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">' +
-    '<button class="btn-save" style="width:auto;padding:9px 20px" onclick="saveGeminiKey()">Simpan Key</button>' +
-    '<button style="background:#252d3d;border:1px solid #2a3350;color:#8b93b0;border-radius:8px;padding:9px 14px;cursor:pointer;font-size:.82rem" onclick="toggleShowKey()">Lihat/Sembunyikan</button>' +
-    '<button style="background:rgba(240,96,96,.15);border:1px solid rgba(240,96,96,.3);color:#f06060;border-radius:8px;padding:9px 14px;cursor:pointer;font-size:.82rem" onclick="deleteGeminiKey()">Hapus Key</button>' +
-    '</div>' +
-    '<div id="geminiKeyStatus" style="font-size:.82rem;margin-top:10px;min-height:20px"></div>';
-  tabP.appendChild(card);
+  // Tambah card ke tab pengaturan
+  const tabPengaturan = document.getElementById('tab-pengaturan');
+  if (tabPengaturan) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = 'border-color:rgba(79,142,247,.35);margin-top:16px';
+    card.innerHTML = `
+      <div class="card-title" style="color:#4f8ef7">🔑 Gemini AI — API Key</div>
+      <div class="info-note blue" style="margin-bottom:14px">
+        Key disimpan di browser kamu saja, <strong>tidak masuk ke GitHub</strong>. Aman! ✅<br>
+        Buat key gratis di <a href="https://aistudio.google.com" target="_blank" style="color:#4f8ef7">aistudio.google.com</a> → Get API Key
+      </div>
+      <div class="form-group">
+        <label>Masukkan API Key Kamu</label>
+        <input type="password" id="geminiKeyInput" placeholder="AIzaSy..."
+          style="font-family:monospace"
+          onkeydown="if(event.key==='Enter')saveGeminiKey()"
+          oninput="document.getElementById('geminiKeyStatus').textContent=''">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn-save" style="width:auto;padding:9px 20px" onclick="saveGeminiKey()">💾 Simpan Key</button>
+        <button style="background:#252d3d;border:1px solid #2a3350;color:#8b93b0;border-radius:8px;padding:9px 14px;cursor:pointer;font-size:.82rem" onclick="toggleShowKey()">👁 Lihat</button>
+        <button style="background:rgba(240,96,96,.15);border:1px solid rgba(240,96,96,.3);color:#f06060;border-radius:8px;padding:9px 14px;cursor:pointer;font-size:.82rem" onclick="deleteGeminiKey()">🗑 Hapus</button>
+      </div>
+      <div id="geminiKeyStatus" style="font-size:.82rem;margin-top:10px;min-height:20px"></div>
+    `;
+    tabPengaturan.appendChild(card);
+  }
 
-  // Tampilkan status key yang sudah ada
-  var existing = localStorage.getItem('gemini_api_key');
-  var inp = document.getElementById('geminiKeyInput');
-  if (inp && existing) inp.placeholder = 'Tersimpan: ' + existing.slice(0,10) + '...';
+  // Tampilkan placeholder kalau key sudah ada
+  const existing = localStorage.getItem('gemini_api_key');
+  const inp = document.getElementById('geminiKeyInput');
+  if (inp && existing) inp.placeholder = '✅ Tersimpan — ' + existing.slice(0,10) + '...';
 });
 </script>
 </body>
