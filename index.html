@@ -1471,7 +1471,7 @@ async function kirimAI() {
       + '{"mode":"chat","tanggal":"' + today + '","pagi":0,"siang":0,"malam":0,"minum":0,"bensin":0,"data":0,"listrik":0,"lain":0,"catatan":"","pesan":"jawaban bahasa Indonesia"}\n'
       + 'Ganti mode ke "input" jika user input angka pengeluaran. JANGAN tambah teks lain di luar JSON.';
 
-    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + getGeminiKey(), {
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=' + getGeminiKey(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 500 } })
